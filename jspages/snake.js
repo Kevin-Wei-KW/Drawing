@@ -1,8 +1,5 @@
-body=[[6, 6],[6, 7]]
-grid=[]
-
-prevx = -1;
-prevy = -1;
+body=[[6, 6]]
+grid = []; //2d array; =-1 (nothing), =0 (snake body), =1 (apple)
 
 function setup() {
     canvas = createCanvas(600, 600);
@@ -11,12 +8,21 @@ function setup() {
     background(255);
     fill(0);
 
+    for(i = 0; i < 12; i++) {
+        grid[i] = [];
+        for(j = 0; j < 12; j++) {
+            grid[i].push(-1);
+        }
+    }
+    grid[6][6] = 0;
+
 }
 
 var smallWidth = 50;
 var smallHeight = 50;
-var nextTime = 0;  //holds off next move time
-var speedHz = 30;
+var moveTimer = 0;  //holds off next move time
+var appleTimer = 0;  //holds off spawning next apple
+var restInterval = 20;
 
 var temp = 1;
 
@@ -37,8 +43,7 @@ function draw() {
         }
     }
 
-    nextTime++;
-    key;
+    moveTimer++;
     document.addEventListener('keydown', function(event) {
         if(event.key.indexOf("Arrow") != -1) {
             event.preventDefault();
@@ -46,34 +51,58 @@ function draw() {
         const key = event.key;
     })
     
-    if(nextTime == speedHz) { //wait until counter hits this to update
+    if(moveTimer == restInterval) { //wait until counter hits this to update
 
-        coord = body.shift();
+        coord = body[0];
         headx = coord[0];
         heady = coord[1];
 
+        //handle collision with wall
         collision = checkCollision(headx, heady, key); //checks if snake ran into body or wall
-
         if(collision) {
+            console.log("collision: " + collision);
             location.reload();
         }
 
-        body.unshift([headx, heady]); //add the current head back since snake body needs to stay connected, so should only leave tail deleted
-
-        nextTime = 0;
+        //move and fill new head location
         moveHead(headx, heady, key);
-        
         fill(0);
         rect(smallWidth*headx, smallHeight*heady, smallWidth, smallHeight, 10);
         
-        if(body.length > 0) {
+        ateApple = false;
+        if(grid[headx][heady] == 1) {
+            ateApple = true;
+            if(restInterval > 0) {
+                restInterval--;
+            }
+        }
+
+
+        //pop out tail
+        if(body.length > 0 && !ateApple) {
             tail = body.pop();
             fill(255);
             rect(smallWidth*tail[0], smallHeight*tail[1], smallWidth, smallHeight);
+            grid[tail[0]][tail[1]] = -1;
         }
 
-        body.unshift([headx, heady]);
+        //spawns apple
+        if(appleTimer == 4) {
+            appleRow = Math.floor(Math.random()*12);
+            appleCol = Math.floor(Math.random()*12);
+            grid[appleRow][appleCol] = 1;
+            console.log("apple: " + appleRow + " " + appleCol);
 
+            fill(255, 0, 0)
+            rect(smallWidth*appleRow, smallHeight*appleCol, smallWidth, smallHeight, 40);
+
+            appleTimer = 0;
+        }
+
+        body.unshift([headx, heady]); //current headx heady now in new location of head
+        moveTimer = 0; //reset timer
+        appleTimer++;
+        grid[headx][heady] = 0;
     }
 
 
@@ -84,14 +113,27 @@ function draw() {
 function checkCollision(x, y, key) {
     switch(key) {
         case "ArrowUp":
-            if(y == 0) return true;
+            if(y == 0 || grid[x][y-1] == 0) {
+                return true;
+            } 
+            break;
         case "ArrowDown":
-            if(y == 12) return true;
+            if(y == 11 || grid[x][y+1] == 0) {
+                return true;
+            }
+            break;
         case "ArrowLeft":
-            if(x == 0) return true;
+            if(x == 0 || grid[x-1][y] == 0) {
+                return true;
+            }
+            break;
         case "ArrowRight":
-            if(x == 12) return true;
+            if(x == 11 || grid[x+1][y] == 0) {
+                return true;
+            }
+            break;
     }
+    return false;
 }
 
 function moveHead(x, y, key) {
@@ -99,16 +141,24 @@ function moveHead(x, y, key) {
     prevy = heady;
     switch(key) {
         case "ArrowUp":
-            if(heady > 0) heady--;
+            if(heady > 0) {
+                heady--;
+            }
             break;
         case "ArrowDown":
-            if(heady < 11) heady++;
+            if(heady < 11) {
+                heady++;
+            }
             break;
         case "ArrowLeft":
-            if(headx > 0) headx--;
+            if(headx > 0) {
+                headx--;
+            }
             break;
         case "ArrowRight":
-            if(headx < 11) headx++;
+            if(headx < 11) {
+                headx++;
+            }
             break;
     }
     
