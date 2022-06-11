@@ -1,5 +1,5 @@
 body=[[6, 6]]
-grid = []; //2d array; =-1 (nothing), =0 (snake body), =1 (apple)
+grid = []; //2d array; =-1 (nothing), =0 (snake body), =1 (apple), =2 (enemy)
 
 function setup() {
     canvas = createCanvas(600, 600);
@@ -54,7 +54,7 @@ function draw() {
         }
     }
 
-    moveTimer++;
+    //detects direction change
     document.addEventListener('keydown', function(event) {
         if(event.key.indexOf("Arrow") != -1) {
             event.preventDefault();
@@ -62,6 +62,7 @@ function draw() {
         const key = event.key;
     })
     
+    moveTimer++;
     if(moveTimer == restInterval) { //wait until counter hits this to update
 
         coord = body[0];
@@ -102,23 +103,23 @@ function draw() {
             grid[tail[0]][tail[1]] = -1;
         }
 
-        //spawns apple
-        if(appleTimer == 4) {
-            appleRow = Math.floor(Math.random()*12);
-            appleCol = Math.floor(Math.random()*12);
-            grid[appleRow][appleCol] = 1;
-            console.log("apple: " + appleRow + " " + appleCol);
-
-            fill(255, 0, 0)
-            rect(smallWidth*appleRow, smallHeight*appleCol, smallWidth, smallHeight, 40);
-
-            appleTimer = 0;
-        }
-
         body.unshift([headx, heady]); //current headx heady now in new location of head
         moveTimer = 0; //reset timer
-        appleTimer++;
         grid[headx][heady] = 0;
+    }
+
+    //spawns apple
+    appleTimer++;
+    if(appleTimer == 80) {
+        appleRow = Math.floor(Math.random()*12);
+        appleCol = Math.floor(Math.random()*12);
+        grid[appleRow][appleCol] = 1;
+        console.log("apple: " + appleRow + " " + appleCol);
+
+        fill(255, 0, 0)
+        rect(smallWidth*appleRow, smallHeight*appleCol, smallWidth, smallHeight, 40);
+
+        appleTimer = 0;
     }
 
 
