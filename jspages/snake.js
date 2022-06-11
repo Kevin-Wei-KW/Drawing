@@ -69,10 +69,11 @@ function draw() {
         fill(0);
         rect(smallWidth*headx, smallHeight*heady, smallWidth, smallHeight, 10);
         
+        //check if ate apple
         ateApple = false;
         if(grid[headx][heady] == 1) {
             ateApple = true;
-            if(restInterval > 0) {
+            if(restInterval > 5) {
                 restInterval--;
             }
         }
