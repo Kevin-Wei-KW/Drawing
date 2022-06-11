@@ -23,10 +23,21 @@ var smallHeight = 50;
 var moveTimer = 0;  //holds off next move time
 var appleTimer = 0;  //holds off spawning next apple
 var restInterval = 20;
+awaitRetry = false;
 
 var temp = 1;
 
 function draw() {
+
+    //detect user click for retry
+    if(awaitRetry) {
+        document.addEventListener('click', function(event) {
+            awaitRetry = false;
+            background(255);
+            resetGame();
+        })
+        return;
+    }
 
     if(temp == 1) {
         for(i = 0; i < body.length; i++) {
@@ -60,8 +71,12 @@ function draw() {
         //handle collision with wall
         collision = checkCollision(headx, heady, key); //checks if snake ran into body or wall
         if(collision) {
-            console.log("collision: " + collision);
-            location.reload();
+            // location.reload();
+            background(255);
+            awaitRetry = true;
+            textSize(32);
+            text("Tough Luck \n Click anywhere to try again", width/4, height/4);
+            return;
         }
 
         //move and fill new head location
@@ -109,6 +124,25 @@ function draw() {
 
 
 
+}
+
+function resetGame() {
+    body=[[6,6]];
+
+    grid=[];
+    for(i = 0; i < 12; i++) {
+        grid[i] = [];
+        for(j = 0; j < 12; j++) {
+            grid[i].push(-1);
+        }
+    }
+    grid[6][6] = 0;
+
+    moveTimer = 0;  
+    appleTimer = 0;  
+    restInterval = 20;
+
+    key="";
 }
 
 function checkCollision(x, y, key) {
