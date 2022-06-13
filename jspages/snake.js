@@ -1,5 +1,6 @@
 body=[[6, 6]]
 grid = []; //2d array; =-1 (nothing), =0 (snake body), =1 (apple), =2 (enemy)
+curTime = 1;  //in seconds
 
 function setup() {
     canvas = createCanvas(600, 600);
@@ -18,10 +19,35 @@ function setup() {
 
 }
 
+var scoreTimer = setInterval(function () {
+    if(awaitRetry) {
+        return;
+    }
+    minutes = Math.floor(curTime/60);
+    seconds = Math.floor(curTime%60);
+
+    if(minutes < 10) {
+        strMin = "0" + minutes;
+    } else {
+        strMin = "" + minutes;
+    }
+
+    if(seconds < 10) {
+        strSec = "0" + seconds;
+    } else {
+        strSec = "" + seconds;
+    }
+
+    document.getElementById("score").innerHTML = strMin + ":" + strSec;
+
+    curTime++;
+}, 1000)
+
 var smallWidth = 50;
 var smallHeight = 50;
 var moveTimer = 0;  //holds off next move time
 var appleTimer = 0;  //holds off spawning next apple
+var appleCounter = 0;
 var restInterval = 20;
 awaitRetry = false;
 
@@ -89,9 +115,11 @@ function draw() {
         ateApple = false;
         if(grid[headx][heady] == 1) {
             ateApple = true;
+            appleCounter++;
             if(restInterval > 5) {
                 restInterval--;
             }
+            document.getElementById("apples").innerHTML = "Apples: " + appleCounter;
         }
 
 
@@ -114,7 +142,7 @@ function draw() {
         appleRow = Math.floor(Math.random()*12);
         appleCol = Math.floor(Math.random()*12);
         grid[appleRow][appleCol] = 1;
-        console.log("apple: " + appleRow + " " + appleCol);
+        // console.log("apple: " + appleRow + " " + appleCol);
 
         fill(255, 0, 0)
         rect(smallWidth*appleRow, smallHeight*appleCol, smallWidth, smallHeight, 40);
@@ -141,9 +169,15 @@ function resetGame() {
 
     moveTimer = 0;  
     appleTimer = 0;  
+    appleCounter = 0;
+    document.getElementById("apples").innerHTML = "Apples: 0";
     restInterval = 20;
 
     key="";
+
+    curTime = 0;
+    document.getElementById("score").innerHTML = "00:00";
+
 }
 
 function checkCollision(x, y, key) {
@@ -198,6 +232,6 @@ function moveHead(x, y, key) {
             break;
     }
     
-    console.log(headx + " " + heady);
+    // console.log(headx + " " + heady);
 
 }
