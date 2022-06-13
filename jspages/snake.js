@@ -95,7 +95,7 @@ function draw() {
         headx = coord[0];
         heady = coord[1];
 
-        //handle collision with wall
+        //handle collisions
         collision = checkCollision(headx, heady, key); //checks if snake ran into body or wall
         if(collision) {
             // location.reload();
@@ -181,24 +181,25 @@ function resetGame() {
 }
 
 function checkCollision(x, y, key) {
+    last = body.length-1;
     switch(key) {
         case "ArrowUp":
-            if(y == 0 || grid[x][y-1] == 0) {
+            if(y == 0 || (grid[x][y-1] == 0 && (body[last][0] != x || body[last][1] != y-1))) {
                 return true;
             } 
             break;
         case "ArrowDown":
-            if(y == 11 || grid[x][y+1] == 0) {
+            if(y == 11 || (grid[x][y+1] == 0 && (body[last][0] != x || body[last][1] != y+1))) {
                 return true;
             }
             break;
         case "ArrowLeft":
-            if(x == 0 || grid[x-1][y] == 0) {
+            if(x == 0 || (grid[x-1][y] == 0 && (body[last][0] != x-1 || body[last][1] != y))) {
                 return true;
             }
             break;
         case "ArrowRight":
-            if(x == 11 || grid[x+1][y] == 0) {
+            if(x == 11 || (grid[x+1][y] == 0 && (body[last][0] != x+1 || body[last][1] != y))) {
                 return true;
             }
             break;
